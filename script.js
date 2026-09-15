@@ -93,7 +93,7 @@ function showWindow(id){
 document.getElementById("open-schedule").onclick = () => { if (justDragged) return; showWindow("win-schedule"); };
 document.getElementById("open-archive").onclick = () => { if (justDragged) return; showWindow("win-archive"); };
 document.getElementById("open-mine").onclick = () => { if (justDragged) return; showWindow("win-mine"); };
-document.getElementById("open-inet").onclick = () => { if (justDragged) return; showWindow("win-inet"); };
+document.getElementById("open-inet").onclick = () => { if (justDragged) return; renderInetHome(); showWindow("win-inet"); };
 document.getElementById("goto-archive").onclick = () => showWindow("win-archive");
 document.getElementById("goto-schedule").onclick = () => showWindow("win-schedule");
 document.querySelectorAll("[data-close]").forEach(btn=>{
@@ -874,6 +874,55 @@ function setupCrackEasterEgg(){
     bsod.addEventListener("click", () => { bsod.classList.remove("show"); crackCount = 0; crackBusy = false; const l = document.getElementById("crack-layer"); if (l) l.innerHTML = ""; });
     document.addEventListener("keydown", () => { if (bsod.classList.contains("show")){ bsod.classList.remove("show"); crackCount = 0; crackBusy = false; const l = document.getElementById("crack-layer"); if (l) l.innerHTML = ""; } });
   }
+}
+
+/* ---------------- 인터넷 창: 가끔(약 20%) 오프라인 공룡 화면 ---------------- */
+let inetHomeHTML = null; // 정상 홈페이지 원본 마크업 (최초 로드시 캐시)
+
+function buildDinoHTML(){
+  return `
+    <div class="inet-dino-page">
+      <svg class="dino-scene" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <g fill="#535353">
+          <rect x="14" y="18" width="16" height="12"/>
+          <rect x="9" y="27" width="6" height="4"/>
+          <rect x="26" y="26" width="26" height="16"/>
+          <rect x="44" y="18" width="12" height="10"/>
+          <polygon points="52,26 68,20 68,30 52,34"/>
+          <rect x="18" y="30" width="5" height="7"/>
+          <rect x="30" y="42" width="7" height="10"/>
+          <rect x="44" y="42" width="7" height="8"/>
+          <rect x="23" y="22" width="3" height="3" fill="#f1f2f0"/>
+        </g>
+        <g fill="#535353">
+          <rect x="150" y="26" width="6" height="26"/>
+          <rect x="142" y="34" width="6" height="10"/>
+          <rect x="142" y="30" width="10" height="4"/>
+          <rect x="160" y="18" width="6" height="18"/>
+          <rect x="160" y="14" width="10" height="4"/>
+        </g>
+        <line x1="0" y1="52" x2="220" y2="52" stroke="#535353" stroke-width="1" stroke-dasharray="4 3"/>
+      </svg>
+      <div class="inet-dino-title">You are offline</div>
+      <div class="inet-dino-try">
+        <p>Try:</p>
+        <ul>
+          <li>Don't panic</li>
+          <li>Look around</li>
+          <li>Interact with reality</li>
+        </ul>
+      </div>
+    </div>`;
+}
+
+function renderInetHome(){
+  const page = document.querySelector("#win-inet .inet-page");
+  const addr = document.querySelector("#win-inet .inet-addr");
+  if (!page) return;
+  if (inetHomeHTML === null) inetHomeHTML = page.innerHTML; // 최초 1회만 원본 캐시
+  const showDino = Math.random() < 0.2; // 약 20% 확률
+  page.innerHTML = showDino ? buildDinoHTML() : inetHomeHTML;
+  if (addr) addr.textContent = showDino ? "http://www.404duck.co.kr/error" : "http://www.404duck.co.kr/";
 }
 
 /* ---------------- 바탕화면 우클릭 메뉴: 아이콘 정렬 ---------------- */
