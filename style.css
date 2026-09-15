@@ -32,7 +32,9 @@ a{ color:#0000ee; }
 .dicon{
   position:absolute; top:28px; width:84px; display:flex; flex-direction:column;
   align-items:center; gap:6px; cursor:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgdmlld0JveD0iMCAwIDI4IDI4IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPgogIDxwb2x5Z29uIHBvaW50cz0iMiwxIDIsMjAgNywxNiAxMCwyMyAxMywyMiAxMCwxNSAxNywxNSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPgo8L3N2Zz4K") 2 1, default; user-select:none; touch-action:none;
+  -webkit-user-drag:none; user-drag:none;
 }
+.dicon svg, .dicon img{ -webkit-user-drag:none; user-drag:none; pointer-events:none; }
 #open-schedule{ left:16px; }
 #open-archive{ left:16px; top:126px; }
 a.dicon{ text-decoration:none; left:16px; }
@@ -150,22 +152,27 @@ body.wait-cursor *{
   font-weight:bold; font-size:13px; gap:8px;
 }
 .titlebar.small{ font-size:12px; padding:4px 6px; }
-.wctl{ display:flex; gap:3px; flex-shrink:0; }
+.wctl{ display:flex; gap:2px; flex-shrink:0; }
+.wctl .wbtn{ width:18px; min-width:18px; height:16px; padding:0; }
 .wbtn{
   min-width:18px; height:16px; background:#c0c0c0; color:#000; font-size:11px;
   display:flex; align-items:center; justify-content:center; cursor:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgdmlld0JveD0iMCAwIDI4IDI4IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPgogIDxwb2x5Z29uIHBvaW50cz0iMiwxIDIsMjAgNywxNiAxMCwyMyAxMywyMiAxMCwxNSAxNywxNSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPgo8L3N2Zz4K") 2 1, default; padding:0 4px;
   border-top:2px solid #fff; border-left:2px solid #fff;
   border-bottom:2px solid #404040; border-right:2px solid #404040;
   box-shadow: inset 1px 1px 0 #dfdfdf;
+  position:relative;
 }
 .wbtn:active{
   border-top:2px solid #404040; border-left:2px solid #404040;
   border-bottom:2px solid #fff; border-right:2px solid #fff;
 }
-.wctl .close{ font-weight:bold; }
-.wbtn.min{ position:relative; }
+.wctl .close{ font-weight:bold; font-size:13px; line-height:1; }
 .wbtn.min::after{
-  content:""; position:absolute; left:3px; right:3px; bottom:3px; height:2px; background:#000;
+  content:""; position:absolute; left:4px; right:4px; bottom:4px; height:2px; background:#000;
+}
+.wbtn.max::after{
+  content:""; position:absolute; left:4px; right:4px; top:4px; bottom:4px;
+  border:2px solid #000; border-top-width:3px;
 }
 
 .menubar{
