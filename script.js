@@ -862,7 +862,7 @@ function triggerShatter(){
 function setupCrackEasterEgg(){
   const desktop = document.querySelector(".desktop");
   if (!desktop) return;
-  desktop.addEventListener("click", (e) => {
+  desktop.addEventListener("dblclick", (e) => {
     if (crackBusy) return;
     if (e.target.closest(".window, .dicon, .taskbar, .err-toast, .boot-screen, .bsod-overlay")) return;
     crackCount++;
