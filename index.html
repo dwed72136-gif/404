@@ -18,7 +18,24 @@
     </div>
   </div>
 
+  <!-- 바탕화면 연타 이스터에그: 화면 박살 -->
+  <div class="bsod-overlay pixel" id="bsod-overlay">
+    <div class="bsod-inner">
+      <p>404_DUCK.EXE 에서 치명적 오류가 발생했습니다.</p>
+      <p>바탕화면을 그만 좀 눌러주세요.</p>
+      <p></p>
+      <p>기술 정보:</p>
+      <p>*** STOP: 0x00000404 (0xDEADDUCK, 0x00C0FFEE, 0x00000015, 0x00000000)</p>
+      <p>*** 덩기덕.SYS - 주소 40404040</p>
+      <p></p>
+      <p>계속하려면 아무 키나 누르세요...</p>
+    </div>
+  </div>
+
   <div class="desktop">
+
+    <!-- 바탕화면 연타 이스터에그: 깨진 유리 자국 레이어 -->
+    <div class="crack-layer" id="crack-layer"></div>
 
     <!-- desktop icons -->
     <div class="dicon" id="open-schedule">
@@ -51,6 +68,15 @@
         <circle cx="15" cy="15" r="2" fill="#fff"/>
       </svg>
       <span>지뢰찾기</span>
+    </div>
+    <div class="dicon" id="open-inet">
+      <svg width="34" height="34" viewBox="0 0 36 36" shape-rendering="geometricPrecision">
+        <circle cx="18" cy="18" r="16" fill="#1f5fbf" stroke="#0a2f6b" stroke-width="1"/>
+        <path d="M9 15 a9 9 0 0 1 17 -2" fill="none" stroke="#ffd24a" stroke-width="3" stroke-linecap="round"/>
+        <path d="M10 21 a9 9 0 0 0 16 3" fill="none" stroke="#ffd24a" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="24" cy="24" r="4.5" fill="#e8a400" stroke="#7a4f00" stroke-width="1"/>
+      </svg>
+      <span>인터넷</span>
     </div>
 
     <!-- link icons -->
@@ -165,12 +191,48 @@
       <div class="resize-handle" data-resize="win-mine"></div>
     </div>
 
+    <!-- INTERNET WINDOW -->
+    <div class="window hidden" id="win-inet">
+      <div class="titlebar">
+        <span>iexplore.exe — Internet Explorer</span>
+        <div class="wctl win-xp">
+          <div class="wbtn min"></div><div class="wbtn max"></div>
+          <div class="wbtn close" data-close="win-inet">×</div>
+        </div>
+      </div>
+      <div class="menubar">
+        <span>파일(F)</span><span>편집(E)</span><span>보기(V)</span><span>즐겨찾기(A)</span><span>도움말(H)</span>
+      </div>
+      <div class="toolbar bevel-in">
+        <div class="wbtn">◀ 뒤로</div>
+        <div class="wbtn">앞으로 ▶</div>
+        <div class="statuspill inet-addr">http://www.404duck.co.kr/</div>
+        <div class="wbtn">이동</div>
+      </div>
+      <div class="content inet-content bevel-in">
+        <div class="inet-page">
+          <div class="inet-marquee">★☆★ 덩기덕 404 홈페이지에 오신 것을 환영합니다 ★☆★</div>
+          <h1>404 DUCK's HOMEPAGE</h1>
+          <p class="inet-sub">방문해주셔서 감사합니다! 아래 링크를 눌러 구경하세요.</p>
+          <ul class="inet-links">
+            <li><a href="https://chzzk.naver.com/41e6c86cf804123cc8574b4cd118c019" target="_blank" rel="noopener">▶ 방송국 바로가기</a></li>
+            <li><a href="https://cafe.naver.com/404duck/420" target="_blank" rel="noopener">▶ 팬카페 바로가기</a></li>
+            <li><a href="https://x.com/kikiduck77/" target="_blank" rel="noopener">▶ X 바로가기</a></li>
+            <li><a href="https://www.youtube.com/@%EB%8D%A9%EA%B8%B0%EB%8D%9550" target="_blank" rel="noopener">▶ YouTube 바로가기</a></li>
+          </ul>
+          <div class="inet-counter">오늘의 방문자 수: 000404 명</div>
+        </div>
+      </div>
+      <div class="resize-handle" data-resize="win-inet"></div>
+    </div>
+
     <!-- global taskbar, fixed to the bottom of the screen -->
     <div class="taskbar">
       <div class="startbtn bevel-out"><span class="winlogo"></span>시작</div>
       <div class="bevel-in taskitem" data-win="win-schedule">404_scheduler.exe</div>
       <div class="bevel-in taskitem hidden" data-win="win-archive">game_archive.exe</div>
       <div class="bevel-in taskitem hidden" data-win="win-mine">minesweeper.exe</div>
+      <div class="bevel-in taskitem hidden" data-win="win-inet">iexplore.exe</div>
       <div class="spacer"></div>
       <div class="bevel-in clock" id="clock">--:--</div>
     </div>

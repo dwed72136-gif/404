@@ -116,6 +116,20 @@ body.wait-cursor *{
 }
 .boot-foot{ margin-top:10px; font-size:12px; text-align:center; color:#888; }
 
+/* 바탕화면 연타 이스터에그: 금 간 유리 자국 */
+.crack-layer{ position:absolute; inset:0; z-index:9000; pointer-events:none; }
+.crack-mark{ position:absolute; opacity:0; animation:crackIn .12s ease forwards; filter:drop-shadow(0 0 1px rgba(0,0,0,.4)); }
+@keyframes crackIn{ from{ opacity:0; transform:scale(.7); } to{ opacity:1; transform:scale(1); } }
+
+/* 바탕화면 연타 이스터에그: 화면 박살 (BSOD) */
+.bsod-overlay{
+  position:fixed; inset:0; z-index:9998; background:#0000aa; color:#fff;
+  display:none; align-items:center; justify-content:center; padding:24px;
+  cursor:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyOCIgaGVpZ2h0PSIyOCIgdmlld0JveD0iMCAwIDI4IDI4IiBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPgogIDxwb2x5Z29uIHBvaW50cz0iMiwxIDIsMjAgNywxNiAxMCwyMyAxMywyMiAxMCwxNSAxNywxNSIgZmlsbD0iI2ZmZmZmZiIgc3Ryb2tlPSIjMDAwMDAwIiBzdHJva2Utd2lkdGg9IjEuNiIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPgo8L3N2Zz4K") 2 1, default;
+}
+.bsod-overlay.show{ display:flex; }
+.bsod-inner{ width:min(560px, 92vw); font-size:16px; line-height:1.6; }
+
 /* error toast */
 .err-toast{
   position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
@@ -273,6 +287,18 @@ body.wait-cursor *{
 .mine-cell[data-n="6"]{ color:#008284; }
 .mine-cell[data-n="7"]{ color:#000; }
 .mine-cell[data-n="8"]{ color:#808080; }
+
+/* internet explorer 오버레이 */
+.inet-addr{ flex:1; text-align:left; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.inet-content{ margin:6px; background:#fff; padding:0; overflow:auto; min-height:0; }
+.inet-page{ padding:18px; background:radial-gradient(circle at 20% 10%, #eaf3ff 0%, #ffffff 55%); min-height:100%; }
+.inet-marquee{ background:#000080; color:#0f0; font-family:"VT323",monospace; font-size:15px; padding:4px 8px; margin-bottom:14px; }
+.inet-page h1{ font-family:"VT323",monospace; font-size:34px; letter-spacing:1px; color:#0a246a; margin:0 0 6px; text-shadow:2px 2px 0 #ffd24a; }
+.inet-sub{ font-size:13px; color:#333; margin:0 0 14px; }
+.inet-links{ list-style:none; margin:0 0 16px; padding:0; display:flex; flex-direction:column; gap:8px; }
+.inet-links li{ background:#eef4ff; border:1px solid #9db8dd; padding:8px 10px; }
+.inet-links a{ font-weight:bold; }
+.inet-counter{ font-family:"VT323",monospace; font-size:16px; background:#000; color:#0f0; display:inline-block; padding:3px 10px; }
 
 /* archive */
 .archive-content{ margin:6px; background:#e8e8e8; padding:14px; overflow:auto; min-height:0; }

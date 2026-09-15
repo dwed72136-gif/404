@@ -93,6 +93,7 @@ function showWindow(id){
 document.getElementById("open-schedule").onclick = () => { if (justDragged) return; showWindow("win-schedule"); };
 document.getElementById("open-archive").onclick = () => { if (justDragged) return; showWindow("win-archive"); };
 document.getElementById("open-mine").onclick = () => { if (justDragged) return; showWindow("win-mine"); };
+document.getElementById("open-inet").onclick = () => { if (justDragged) return; showWindow("win-inet"); };
 document.getElementById("goto-archive").onclick = () => showWindow("win-archive");
 document.getElementById("goto-schedule").onclick = () => showWindow("win-schedule");
 document.querySelectorAll("[data-close]").forEach(btn=>{
@@ -564,7 +565,7 @@ function makeWindowInteractive(win){
 }
 
 function setupDragAndResize(){
-  ["open-schedule","open-archive","open-mine","icon-chzzk","icon-cafe","icon-x","icon-youtube"].forEach(id=>{
+  ["open-schedule","open-archive","open-mine","open-inet","icon-chzzk","icon-cafe","icon-x","icon-youtube"].forEach(id=>{
     makeIconDraggable(document.getElementById(id));
   });
   // 링크 아이콘은 드래그 직후엔 새 탭 이동을 막음
@@ -574,6 +575,7 @@ function setupDragAndResize(){
   makeWindowInteractive(document.getElementById("win-schedule"));
   makeWindowInteractive(document.getElementById("win-archive"));
   makeWindowInteractive(document.getElementById("win-mine"));
+  makeWindowInteractive(document.getElementById("win-inet"));
   makeToastDraggable(document.getElementById("err-toast"));
 }
 
