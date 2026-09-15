@@ -884,24 +884,34 @@ function buildDinoHTML(){
     <div class="inet-dino-page">
       <svg class="dino-scene" viewBox="0 0 220 70" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
         <g fill="#535353">
-          <rect x="14" y="18" width="16" height="12"/>
-          <rect x="9" y="27" width="6" height="4"/>
-          <rect x="26" y="26" width="26" height="16"/>
-          <rect x="44" y="18" width="12" height="10"/>
-          <polygon points="52,26 68,20 68,30 52,34"/>
-          <rect x="18" y="30" width="5" height="7"/>
-          <rect x="30" y="42" width="7" height="10"/>
-          <rect x="44" y="42" width="7" height="8"/>
-          <rect x="23" y="22" width="3" height="3" fill="#f1f2f0"/>
+          <!-- 꼬리 -->
+          <rect x="12" y="26" width="4" height="4"/>
+          <rect x="14" y="20" width="6" height="6"/>
+          <!-- 목~머리 -->
+          <rect x="24" y="18" width="16" height="8"/>
+          <rect x="30" y="10" width="14" height="8"/>
+          <rect x="32" y="4" width="10" height="6"/>
+          <!-- 몸통 -->
+          <rect x="18" y="24" width="20" height="10"/>
+          <!-- 팔 -->
+          <rect x="32" y="26" width="4" height="4"/>
+          <!-- 다리 -->
+          <rect x="22" y="34" width="6" height="10"/>
+          <rect x="32" y="34" width="6" height="10"/>
+          <!-- 눈, 입 (배경색으로 파냄) -->
+          <rect x="35" y="7" width="3" height="3" fill="#f1f2f0"/>
+          <rect x="40" y="16" width="3" height="2" fill="#f1f2f0"/>
         </g>
         <g fill="#535353">
-          <rect x="150" y="26" width="6" height="26"/>
-          <rect x="142" y="34" width="6" height="10"/>
-          <rect x="142" y="30" width="10" height="4"/>
-          <rect x="160" y="18" width="6" height="18"/>
-          <rect x="160" y="14" width="10" height="4"/>
+          <rect x="150" y="20" width="6" height="26"/>
+          <rect x="142" y="28" width="6" height="10"/>
+          <rect x="142" y="24" width="10" height="4"/>
+          <rect x="160" y="12" width="6" height="18"/>
+          <rect x="160" y="8" width="10" height="4"/>
         </g>
-        <line x1="0" y1="52" x2="220" y2="52" stroke="#535353" stroke-width="1" stroke-dasharray="4 3"/>
+        <line x1="0" y1="46" x2="130" y2="46" stroke="#535353" stroke-width="1" stroke-dasharray="4 3"/>
+        <rect x="174" y="46" width="2" height="1" fill="#535353"/>
+        <line x1="190" y1="46" x2="206" y2="46" stroke="#535353" stroke-width="1" stroke-dasharray="4 3"/>
       </svg>
       <div class="inet-dino-title">You are offline</div>
       <div class="inet-dino-try">
