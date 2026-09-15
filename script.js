@@ -818,31 +818,67 @@ const CRACK_LIMIT = 14;
 let crackCount = 0;
 let crackBusy = false;
 
+function crackStroke(d){
+  return `<path d="${d}" stroke="rgba(0,0,0,.55)" stroke-width="1.4" fill="none" stroke-linejoin="round"/>` +
+         `<path d="${d}" stroke="rgba(255,255,255,.85)" stroke-width="0.6" fill="none" stroke-linejoin="round"/>`;
+}
+
+// 유리 깨진 느낌: 중심에서 뻗는 불규칙한 금 + 끝에서 갈라지는 잔금 (완전 대칭 거미줄 지양)
 function crackMarkSvg(size){
   const cx = size / 2, cy = size / 2;
-  const legs = 5 + Math.floor(Math.random() * 3);
-  let paths = "";
-  for (let i = 0; i < legs; i++){
-    const angle = (Math.PI * 2 * i) / legs + (Math.random() - 0.5) * 0.6;
-    const segs = 2 + Math.floor(Math.random() * 2);
-    let d = `M ${cx} ${cy}`;
-    for (let s = 0; s < segs; s++){
-      const len = (size / 2) * ((s + 1) / segs);
-      const jitter = (Math.random() - 0.5) * size * 0.25;
-      const nx = cx + Math.cos(angle) * len + jitter;
-      const ny = cy + Math.sin(angle) * len + jitter;
-      d += ` L ${nx.toFixed(1)} ${ny.toFixed(1)}`;
-    }
-    paths += `<path d="${d}" stroke="rgba(0,0,0,.45)" stroke-width="1.6" fill="none"/>` +
-             `<path d="${d}" stroke="rgba(255,255,255,.9)" stroke-width="0.7" fill="none"/>`;
+  const legCount = 6 + Math.floor(Math.random() * 5);
+  const rMax = size / 2;
+  const angles = [];
+  for (let i = 0; i < legCount; i++){
+    angles.push((Math.PI * 2 * i) / legCount + (Math.random() - 0.5) * 0.9);
   }
+  let paths = "";
+  const tips = [];
+
+  angles.forEach(angle => {
+    const legLen = rMax * (0.55 + Math.random() * 0.45); // 다리마다 길이 다르게
+    const segs = 3 + Math.floor(Math.random() * 2);
+    let d = `M ${cx.toFixed(1)} ${cy.toFixed(1)}`;
+    let px = cx, py = cy;
+    for (let s = 0; s < segs; s++){
+      const len = legLen * ((s + 1) / segs);
+      const jitter = (Math.random() - 0.5) * size * 0.16;
+      const perp = angle + Math.PI / 2;
+      px = cx + Math.cos(angle) * len + Math.cos(perp) * jitter;
+      py = cy + Math.sin(angle) * len + Math.sin(perp) * jitter;
+      d += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
+    }
+    paths += crackStroke(d);
+    tips.push([px, py, angle]);
+
+    // 다리 끝에서 짧게 갈라지는 잔금 1~2개
+    const branches = 1 + Math.floor(Math.random() * 2);
+    for (let b = 0; b < branches; b++){
+      const branchAngle = angle + (Math.random() - 0.5) * 1.6;
+      const branchLen = legLen * (0.2 + Math.random() * 0.25);
+      const bx = px + Math.cos(branchAngle) * branchLen;
+      const by = py + Math.sin(branchAngle) * branchLen;
+      paths += crackStroke(`M ${px.toFixed(1)} ${py.toFixed(1)} L ${bx.toFixed(1)} ${by.toFixed(1)}`);
+    }
+  });
+
+  // 인접한 다리끼리만 가끔 잇는 짧고 삐뚤어진 금 (완전한 원 대신 군데군데)
+  for (let i = 0; i < tips.length; i++){
+    if (Math.random() < 0.45) continue;
+    const [x1, y1] = tips[i];
+    const [x2, y2] = tips[(i + 1) % tips.length];
+    const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * size * 0.12;
+    const my = (y1 + y2) / 2 + (Math.random() - 0.5) * size * 0.12;
+    paths += crackStroke(`M ${x1.toFixed(1)} ${y1.toFixed(1)} L ${mx.toFixed(1)} ${my.toFixed(1)} L ${x2.toFixed(1)} ${y2.toFixed(1)}`);
+  }
+
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
 }
 
 function addCrackMark(x, y){
   const layer = document.getElementById("crack-layer");
   if (!layer) return;
-  const size = 60 + Math.random() * 70;
+  const size = 140 + Math.random() * 100;
   const mark = document.createElement("div");
   mark.className = "crack-mark";
   mark.style.left = (x - size / 2) + "px";
