@@ -40,6 +40,18 @@
       </svg>
       <span>game_archive</span>
     </div>
+    <div class="dicon" id="open-mine">
+      <svg width="34" height="34" viewBox="0 0 36 36" shape-rendering="crispEdges">
+        <rect x="1" y="1" width="34" height="34" rx="2" fill="#c0c0c0" stroke="#000"/>
+        <rect x="5" y="5" width="26" height="26" fill="#000"/>
+        <circle cx="18" cy="18" r="8" fill="#1a1a1a" stroke="#000"/>
+        <g stroke="#1a1a1a" stroke-width="2">
+          <path d="M18 6 V10 M18 26 V30 M6 18 H10 M26 18 H30 M9.5 9.5 L12.3 12.3 M23.7 23.7 L26.5 26.5 M9.5 26.5 L12.3 23.7 M23.7 12.3 L26.5 9.5"/>
+        </g>
+        <circle cx="15" cy="15" r="2" fill="#fff"/>
+      </svg>
+      <span>지뢰찾기</span>
+    </div>
 
     <!-- link icons -->
     <a class="dicon" draggable="false" id="icon-chzzk" href="https://chzzk.naver.com/41e6c86cf804123cc8574b4cd118c019" target="_blank" rel="noopener">
@@ -76,7 +88,7 @@
     <div class="window" id="win-schedule">
       <div class="titlebar">
         <span>404_scheduler.exe — 덩기덕 404의 스케줄 정리</span>
-        <div class="wctl">
+        <div class="wctl win-xp">
           <div class="wbtn min"></div><div class="wbtn max"></div>
           <div class="wbtn close" data-close="win-schedule">×</div>
         </div>
@@ -113,7 +125,7 @@
     <div class="window hidden" id="win-archive">
       <div class="titlebar">
         <span>game_archive.exe — 404의 게임 감상 아카이브</span>
-        <div class="wctl">
+        <div class="wctl win-xp">
           <div class="wbtn min"></div><div class="wbtn max"></div>
           <div class="wbtn close" data-close="win-archive">×</div>
         </div>
@@ -131,10 +143,34 @@
       <div class="resize-handle" data-resize="win-archive"></div>
     </div>
 
+    <!-- MINESWEEPER WINDOW -->
+    <div class="window hidden" id="win-mine">
+      <div class="titlebar">
+        <span>minesweeper.exe — 지뢰찾기</span>
+        <div class="wctl win-xp">
+          <div class="wbtn min"></div><div class="wbtn max"></div>
+          <div class="wbtn close" data-close="win-mine">×</div>
+        </div>
+      </div>
+      <div class="toolbar bevel-in">
+        <div class="statuspill" id="mine-flags">🚩 10</div>
+        <div class="spacer"></div>
+        <div class="wbtn" id="mine-face">🙂</div>
+        <div class="spacer"></div>
+        <div class="statuspill" id="mine-timer">⏱ 0</div>
+      </div>
+      <div class="content" style="justify-content:center; align-items:flex-start;">
+        <div class="bevel-in mine-board" id="mine-board"></div>
+      </div>
+      <div class="resize-handle" data-resize="win-mine"></div>
+    </div>
+
     <!-- global taskbar, fixed to the bottom of the screen -->
     <div class="taskbar">
       <div class="startbtn bevel-out"><span class="winlogo"></span>시작</div>
-      <div class="bevel-in taskitem" id="taskitem">404_scheduler.exe</div>
+      <div class="bevel-in taskitem" data-win="win-schedule">404_scheduler.exe</div>
+      <div class="bevel-in taskitem hidden" data-win="win-archive">game_archive.exe</div>
+      <div class="bevel-in taskitem hidden" data-win="win-mine">minesweeper.exe</div>
       <div class="spacer"></div>
       <div class="bevel-in clock" id="clock">--:--</div>
     </div>

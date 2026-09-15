@@ -37,11 +37,12 @@ a{ color:#0000ee; }
 .dicon svg, .dicon img{ -webkit-user-drag:none; user-drag:none; pointer-events:none; }
 #open-schedule{ left:16px; }
 #open-archive{ left:16px; top:126px; }
+#open-mine{ left:16px; top:224px; }
+a.dicon:nth-of-type(1){ top:322px; }
+a.dicon:nth-of-type(2){ top:420px; }
+a.dicon:nth-of-type(3){ top:518px; }
+a.dicon:nth-of-type(4){ top:616px; }
 a.dicon{ text-decoration:none; left:16px; }
-a.dicon:nth-of-type(1){ top:224px; }
-a.dicon:nth-of-type(2){ top:322px; }
-a.dicon:nth-of-type(3){ top:420px; }
-a.dicon:nth-of-type(4){ top:518px; }
 .dicon span{ font-family:"VT323",monospace; font-size:16px; color:#fff; text-shadow:1px 1px 0 #000; text-align:center; }
 
 /* click / press cursor for anything clickable */
@@ -175,6 +176,21 @@ body.wait-cursor *{
   border:2px solid #000; border-top-width:3px;
 }
 
+/* ---- XP 테마 창 버튼 (봇v2에서 가져옴, 기존 95 테마 버튼은 그대로 유지) ---- */
+.wctl.win-xp{
+  position:relative; width:63px; height:21px; gap:0;
+  background-repeat:no-repeat; background-size:63px 21px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 63 21'%3E%3Cdefs%3E%3ClinearGradient id='b' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23799ed9'/%3E%3Cstop offset='45%25' stop-color='%233b71c8'/%3E%3Cstop offset='100%25' stop-color='%23255094'/%3E%3C/linearGradient%3E%3ClinearGradient id='r' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%23d6765e'/%3E%3Cstop offset='45%25' stop-color='%23c84828'/%3E%3Cstop offset='100%25' stop-color='%2390341d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='0.5' y='0.5' width='20' height='20' fill='url(%23b)' stroke='%23112545' stroke-width='1'/%3E%3Crect x='6' y='13.5' width='9' height='2' rx='0.5' fill='%23ffffff'/%3E%3Crect x='21.5' y='0.5' width='20' height='20' fill='url(%23b)' stroke='%23112545' stroke-width='1'/%3E%3Crect x='27' y='6.5' width='9' height='9' fill='none' stroke='%23ffffff' stroke-width='1.8'/%3E%3Crect x='42.5' y='0.5' width='20' height='20' fill='url(%23r)' stroke='%235a2012' stroke-width='1'/%3E%3Cpath d='M48.5 6.5 L56.5 14.5 M56.5 6.5 L48.5 14.5' stroke='%23ffffff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+.wctl.win-xp .wbtn{
+  width:21px; min-width:21px; height:21px;
+  background:transparent; border:none; box-shadow:none;
+}
+.wctl.win-xp .wbtn:active{ border:none; }
+.wctl.win-xp .wbtn.min::after,
+.wctl.win-xp .wbtn.max::after{ content:none; }
+.wctl.win-xp .close{ font-size:0; line-height:0; }
+
 .menubar{
   background:#c0c0c0; padding:4px 10px; display:flex; gap:16px; font-size:12px;
   border-bottom:1px solid #808080; flex-wrap:wrap;
@@ -232,8 +248,31 @@ body.wait-cursor *{
   linear-gradient(#7fba00 0 0) 8px 0/6px 6px no-repeat,
   linear-gradient(#00a4ef 0 0) 0 8px/6px 6px no-repeat,
   linear-gradient(#ffb900 0 0) 8px 8px/6px 6px no-repeat; }
-.taskitem{ background:#c0c0c0; padding:4px 12px; font-size:12px; }
+.taskitem{ background:#c0c0c0; padding:4px 12px; font-size:12px; cursor:default; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.taskitem.hidden{ display:none; }
+.taskitem.active{ border-top:2px solid #404040; border-left:2px solid #404040; border-bottom:2px solid #fff; border-right:2px solid #fff; box-shadow:none; }
 .clock{ background:#c0c0c0; padding:4px 12px; font-size:12px; }
+
+/* minesweeper */
+.mine-board{ margin:10px auto; background:#c0c0c0; padding:8px; display:inline-grid; grid-template-columns:repeat(9, 24px); grid-auto-rows:24px; gap:1px; }
+.mine-cell{
+  width:24px; height:24px; display:flex; align-items:center; justify-content:center;
+  font-family:"VT323",monospace; font-size:16px; font-weight:bold; user-select:none;
+  background:#c0c0c0; cursor:default;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-bottom:2px solid #808080; border-right:2px solid #808080;
+}
+.mine-cell.open{ border:1px solid #808080; background:#d4d4d4; }
+.mine-cell.mine{ background:#ff0000; }
+.mine-cell.flag{ background:#c0c0c0; }
+.mine-cell[data-n="1"]{ color:#0000ff; }
+.mine-cell[data-n="2"]{ color:#008200; }
+.mine-cell[data-n="3"]{ color:#ff0000; }
+.mine-cell[data-n="4"]{ color:#000084; }
+.mine-cell[data-n="5"]{ color:#840000; }
+.mine-cell[data-n="6"]{ color:#008284; }
+.mine-cell[data-n="7"]{ color:#000; }
+.mine-cell[data-n="8"]{ color:#808080; }
 
 /* archive */
 .archive-content{ margin:6px; background:#e8e8e8; padding:14px; overflow:auto; min-height:0; }

@@ -72,21 +72,46 @@ function tickClock(){
 tickClock();
 setInterval(tickClock, 15000);
 
-/* ---------------- window switching ---------------- */
+/* ---------------- window switching (독립 창: 하나 열어도 다른 창은 안 닫힘) ---------------- */
+function updateTaskbarItem(id){
+  const win = document.getElementById(id);
+  const item = document.querySelector('.taskitem[data-win="' + id + '"]');
+  if (!win || !item) return;
+  item.classList.toggle("hidden", win.classList.contains("hidden"));
+  item.classList.toggle("active", !win.classList.contains("hidden") && Number(win.style.zIndex || 0) === zTop);
+}
+function refreshAllTaskbarItems(){
+  document.querySelectorAll(".taskitem[data-win]").forEach(item => updateTaskbarItem(item.dataset.win));
+}
 function showWindow(id){
-  document.getElementById("win-schedule").classList.toggle("hidden", id !== "win-schedule");
-  document.getElementById("win-archive").classList.toggle("hidden", id !== "win-archive");
-  const taskitem = document.getElementById("taskitem");
-  if (taskitem){
-    taskitem.textContent = id === "win-archive" ? "game_archive.exe" : "404_scheduler.exe";
-  }
+  const win = document.getElementById(id);
+  if (!win) return;
+  win.classList.remove("hidden");
+  win.style.zIndex = ++zTop;
+  refreshAllTaskbarItems();
 }
 document.getElementById("open-schedule").onclick = () => { if (justDragged) return; showWindow("win-schedule"); };
 document.getElementById("open-archive").onclick = () => { if (justDragged) return; showWindow("win-archive"); };
+document.getElementById("open-mine").onclick = () => { if (justDragged) return; showWindow("win-mine"); };
 document.getElementById("goto-archive").onclick = () => showWindow("win-archive");
 document.getElementById("goto-schedule").onclick = () => showWindow("win-schedule");
 document.querySelectorAll("[data-close]").forEach(btn=>{
-  btn.onclick = () => btn.closest(".window").classList.add("hidden");
+  btn.onclick = () => {
+    btn.closest(".window").classList.add("hidden");
+    refreshAllTaskbarItems();
+  };
+});
+document.querySelectorAll(".taskitem[data-win]").forEach(item=>{
+  item.onclick = () => {
+    const win = document.getElementById(item.dataset.win);
+    if (!win) return;
+    if (!win.classList.contains("hidden") && Number(win.style.zIndex || 0) === zTop){
+      win.classList.add("hidden"); // 이미 맨 앞이면 클릭 시 최소화
+      refreshAllTaskbarItems();
+    } else {
+      showWindow(item.dataset.win);
+    }
+  };
 });
 document.querySelectorAll(".close-toast").forEach(btn=>{
   btn.onclick = () => document.getElementById("err-toast").classList.add("hidden");
