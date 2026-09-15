@@ -103,16 +103,7 @@ document.querySelectorAll("[data-close]").forEach(btn=>{
   };
 });
 document.querySelectorAll(".taskitem[data-win]").forEach(item=>{
-  item.onclick = () => {
-    const win = document.getElementById(item.dataset.win);
-    if (!win) return;
-    if (!win.classList.contains("hidden") && Number(win.style.zIndex || 0) === zTop){
-      win.classList.add("hidden"); // 이미 맨 앞이면 클릭 시 최소화
-      refreshAllTaskbarItems();
-    } else {
-      showWindow(item.dataset.win);
-    }
-  };
+  item.onclick = () => showWindow(item.dataset.win); // 항상 해당 창을 맨 위로
 });
 document.querySelectorAll(".close-toast").forEach(btn=>{
   btn.onclick = () => document.getElementById("err-toast").classList.add("hidden");
@@ -822,6 +813,113 @@ function setupMinesweeper(){
   mineReset();
 }
 
+/* ---------------- 바탕화면 연타 이스터에그: 화면 금가고 결국 박살 ---------------- */
+const CRACK_LIMIT = 14;
+let crackCount = 0;
+let crackBusy = false;
+
+function crackMarkSvg(size){
+  const cx = size / 2, cy = size / 2;
+  const legs = 5 + Math.floor(Math.random() * 3);
+  let paths = "";
+  for (let i = 0; i < legs; i++){
+    const angle = (Math.PI * 2 * i) / legs + (Math.random() - 0.5) * 0.6;
+    const segs = 2 + Math.floor(Math.random() * 2);
+    let d = `M ${cx} ${cy}`;
+    for (let s = 0; s < segs; s++){
+      const len = (size / 2) * ((s + 1) / segs);
+      const jitter = (Math.random() - 0.5) * size * 0.25;
+      const nx = cx + Math.cos(angle) * len + jitter;
+      const ny = cy + Math.sin(angle) * len + jitter;
+      d += ` L ${nx.toFixed(1)} ${ny.toFixed(1)}`;
+    }
+    paths += `<path d="${d}" stroke="rgba(0,0,0,.45)" stroke-width="1.6" fill="none"/>` +
+             `<path d="${d}" stroke="rgba(255,255,255,.9)" stroke-width="0.7" fill="none"/>`;
+  }
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">${paths}</svg>`;
+}
+
+function addCrackMark(x, y){
+  const layer = document.getElementById("crack-layer");
+  if (!layer) return;
+  const size = 60 + Math.random() * 70;
+  const mark = document.createElement("div");
+  mark.className = "crack-mark";
+  mark.style.left = (x - size / 2) + "px";
+  mark.style.top = (y - size / 2) + "px";
+  mark.innerHTML = crackMarkSvg(size);
+  layer.appendChild(mark);
+}
+
+function triggerShatter(){
+  if (crackBusy) return;
+  crackBusy = true;
+  const bsod = document.getElementById("bsod-overlay");
+  if (bsod) bsod.classList.add("show");
+  // 자동으로 사라지지 않음 — 화면을 한 번 더 클릭하거나 키를 눌러야 꺼짐
+}
+
+function setupCrackEasterEgg(){
+  const desktop = document.querySelector(".desktop");
+  if (!desktop) return;
+  desktop.addEventListener("click", (e) => {
+    if (crackBusy) return;
+    if (e.target.closest(".window, .dicon, .taskbar, .err-toast, .boot-screen, .bsod-overlay")) return;
+    crackCount++;
+    addCrackMark(e.clientX, e.clientY);
+    if (crackCount >= CRACK_LIMIT) triggerShatter();
+  });
+  const bsod = document.getElementById("bsod-overlay");
+  if (bsod){
+    bsod.addEventListener("click", () => { bsod.classList.remove("show"); crackCount = 0; crackBusy = false; const l = document.getElementById("crack-layer"); if (l) l.innerHTML = ""; });
+    document.addEventListener("keydown", () => { if (bsod.classList.contains("show")){ bsod.classList.remove("show"); crackCount = 0; crackBusy = false; const l = document.getElementById("crack-layer"); if (l) l.innerHTML = ""; } });
+  }
+}
+
+/* ---------------- 바탕화면 우클릭 메뉴: 아이콘 정렬 ---------------- */
+function arrangeIcons(){
+  document.querySelectorAll(".dicon").forEach(el => {
+    el.style.left = "";
+    el.style.top = "";
+    try {
+      localStorage.removeItem("404-icon-pos:" + (el.id || el.textContent));
+    } catch(e){}
+  });
+}
+
+function setupDesktopContextMenu(){
+  const desktop = document.querySelector(".desktop");
+  if (!desktop) return;
+
+  const menu = document.createElement("div");
+  menu.className = "ctx-menu hidden";
+  menu.innerHTML =
+    '<div class="ctx-item" id="ctx-arrange">아이콘 정렬(A)</div>' +
+    '<div class="ctx-sep"></div>' +
+    '<div class="ctx-item" id="ctx-refresh">새로고침(R)</div>';
+  document.body.appendChild(menu);
+
+  function hideMenu(){ menu.classList.add("hidden"); }
+  function showMenuAt(x, y){
+    menu.classList.remove("hidden");
+    const w = menu.offsetWidth, h = menu.offsetHeight;
+    menu.style.left = Math.min(x, window.innerWidth - w - 4) + "px";
+    menu.style.top = Math.min(y, window.innerHeight - h - 4) + "px";
+  }
+
+  desktop.addEventListener("contextmenu", (e) => {
+    if (e.target.closest(".window, .dicon, .taskbar, .err-toast, .boot-screen, .bsod-overlay")) return;
+    e.preventDefault();
+    showMenuAt(e.clientX, e.clientY);
+  });
+  document.addEventListener("click", (e) => { if (!menu.contains(e.target)) hideMenu(); });
+  document.addEventListener("contextmenu", (e) => { if (!e.target.closest(".desktop")) hideMenu(); });
+  window.addEventListener("scroll", hideMenu, true);
+
+  menu.querySelector("#ctx-arrange").addEventListener("click", () => { arrangeIcons(); hideMenu(); });
+  menu.querySelector("#ctx-refresh").addEventListener("click", hideMenu);
+}
+
 (function init(){
   const now = new Date();
   viewYear = now.getFullYear();
@@ -834,4 +932,6 @@ function setupMinesweeper(){
   loadTodo();
   loadGames();
   setupMinesweeper();
+  setupCrackEasterEgg();
+  setupDesktopContextMenu();
 })();

@@ -38,10 +38,11 @@ a{ color:#0000ee; }
 #open-schedule{ left:16px; }
 #open-archive{ left:16px; top:126px; }
 #open-mine{ left:16px; top:224px; }
-a.dicon:nth-of-type(1){ top:322px; }
-a.dicon:nth-of-type(2){ top:420px; }
-a.dicon:nth-of-type(3){ top:518px; }
-a.dicon:nth-of-type(4){ top:616px; }
+#open-inet{ left:16px; top:322px; }
+a.dicon:nth-of-type(1){ top:420px; }
+a.dicon:nth-of-type(2){ top:518px; }
+a.dicon:nth-of-type(3){ top:616px; }
+a.dicon:nth-of-type(4){ top:714px; }
 a.dicon{ text-decoration:none; left:16px; }
 .dicon span{ font-family:"VT323",monospace; font-size:16px; color:#fff; text-shadow:1px 1px 0 #000; text-align:center; }
 
@@ -115,6 +116,18 @@ body.wait-cursor *{
   transition:width .2s linear;
 }
 .boot-foot{ margin-top:10px; font-size:12px; text-align:center; color:#888; }
+
+/* 바탕화면 우클릭 메뉴 */
+.ctx-menu{
+  position:fixed; z-index:9500; min-width:170px; padding:2px; background:#c0c0c0;
+  border-top:2px solid #fff; border-left:2px solid #fff;
+  border-bottom:2px solid #404040; border-right:2px solid #404040;
+  box-shadow: inset 1px 1px 0 #dfdfdf, 2px 2px 8px rgba(0,0,0,.35);
+}
+.ctx-menu.hidden{ display:none; }
+.ctx-item{ padding:6px 12px; font-size:12px; cursor:default; }
+.ctx-item:hover{ background:#000080; color:#fff; }
+.ctx-sep{ height:1px; margin:3px 2px; background:#808080; border-bottom:1px solid #fff; }
 
 /* 바탕화면 연타 이스터에그: 금 간 유리 자국 */
 .crack-layer{ position:absolute; inset:0; z-index:9000; pointer-events:none; }
@@ -204,6 +217,7 @@ body.wait-cursor *{
 .wctl.win-xp .wbtn.min::after,
 .wctl.win-xp .wbtn.max::after{ content:none; }
 .wctl.win-xp .close{ font-size:0; line-height:0; }
+.wctl.win-xp.close-only{ width:21px; background-position:-42px 0; }
 
 .menubar{
   background:#c0c0c0; padding:4px 10px; display:flex; gap:16px; font-size:12px;
