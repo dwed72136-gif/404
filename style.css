@@ -164,6 +164,7 @@ body.wait-cursor *{
   box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080, 4px 4px 14px rgba(0,0,0,.35);
   overflow:hidden;
 }
+#win-mine{ width:min(300px, calc(100% - 24px)); min-height:0; height:auto; }
 .window.dragged{ transform:none; }
 .window .titlebar{ cursor:move; touch-action:none; }
 .window .titlebar .wctl{ cursor:default; }
