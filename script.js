@@ -484,6 +484,7 @@ function makeWindowInteractive(win){
     toPixelPosition();
     dragging = true; moved = false;
     win.style.zIndex = ++zTop;
+    if (typeof refreshAllTaskbarItems === "function") refreshAllTaskbarItems();
     const p = e.touches ? e.touches[0] : e;
     startX = p.clientX; startY = p.clientY;
     startLeft = parseFloat(win.style.left) || 0;
@@ -563,7 +564,7 @@ function makeWindowInteractive(win){
 }
 
 function setupDragAndResize(){
-  ["open-schedule","open-archive","icon-chzzk","icon-cafe","icon-x","icon-youtube"].forEach(id=>{
+  ["open-schedule","open-archive","open-mine","icon-chzzk","icon-cafe","icon-x","icon-youtube"].forEach(id=>{
     makeIconDraggable(document.getElementById(id));
   });
   // 링크 아이콘은 드래그 직후엔 새 탭 이동을 막음
@@ -572,6 +573,7 @@ function setupDragAndResize(){
   });
   makeWindowInteractive(document.getElementById("win-schedule"));
   makeWindowInteractive(document.getElementById("win-archive"));
+  makeWindowInteractive(document.getElementById("win-mine"));
   makeToastDraggable(document.getElementById("err-toast"));
 }
 
@@ -641,6 +643,183 @@ function runBootSequence(){
   setTimeout(finish, 4500); // safety timeout
 }
 
+/* ---------------- 미니게임: 지뢰찾기 ---------------- */
+const MINE_COLS = 9, MINE_ROWS = 9, MINE_COUNT = 10;
+let mineState = null; // { grid, opened, flagged, over, won, timer, timerId }
+
+function mineIndex(r, c){ return r * MINE_COLS + c; }
+
+function mineNeighbors(r, c){
+  const out = [];
+  for (let dr = -1; dr <= 1; dr++){
+    for (let dc = -1; dc <= 1; dc++){
+      if (dr === 0 && dc === 0) continue;
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < MINE_ROWS && nc >= 0 && nc < MINE_COLS) out.push([nr, nc]);
+    }
+  }
+  return out;
+}
+
+function mineBuildGrid(safeR, safeC){
+  const total = MINE_COLS * MINE_ROWS;
+  const mines = new Set();
+  while (mines.size < MINE_COUNT){
+    const idx = Math.floor(Math.random() * total);
+    const r = Math.floor(idx / MINE_COLS), c = idx % MINE_COLS;
+    if (r === safeR && c === safeC) continue; // 첫 클릭은 항상 안전
+    mines.add(idx);
+  }
+  const grid = [];
+  for (let r = 0; r < MINE_ROWS; r++){
+    const row = [];
+    for (let c = 0; c < MINE_COLS; c++){
+      row.push({ mine: mines.has(mineIndex(r, c)), n: 0 });
+    }
+    grid.push(row);
+  }
+  for (let r = 0; r < MINE_ROWS; r++){
+    for (let c = 0; c < MINE_COLS; c++){
+      if (grid[r][c].mine) continue;
+      grid[r][c].n = mineNeighbors(r, c).filter(([nr, nc]) => grid[nr][nc].mine).length;
+    }
+  }
+  return grid;
+}
+
+function mineStopTimer(){
+  if (mineState && mineState.timerId){ clearInterval(mineState.timerId); mineState.timerId = null; }
+}
+
+function mineUpdateFlagCount(){
+  const el = document.getElementById("mine-flags");
+  if (!el || !mineState) return;
+  el.textContent = "🚩 " + Math.max(0, MINE_COUNT - mineState.flagged.size);
+}
+
+function mineSetFace(face){
+  const el = document.getElementById("mine-face");
+  if (el) el.textContent = face;
+}
+
+function mineRender(){
+  const board = document.getElementById("mine-board");
+  if (!board || !mineState) return;
+  board.innerHTML = "";
+  for (let r = 0; r < MINE_ROWS; r++){
+    for (let c = 0; c < MINE_COLS; c++){
+      const cell = document.createElement("div");
+      cell.className = "mine-cell";
+      const key = mineIndex(r, c);
+      const opened = mineState.opened.has(key);
+      const flagged = mineState.flagged.has(key);
+      const data = mineState.grid ? mineState.grid[r][c] : null;
+      if (opened && data){
+        cell.classList.add("open");
+        if (data.mine){
+          cell.classList.add("mine");
+          cell.textContent = "💣";
+        } else if (data.n > 0){
+          cell.dataset.n = data.n;
+          cell.textContent = data.n;
+        }
+      } else if (flagged){
+        cell.classList.add("flag");
+        cell.textContent = "🚩";
+      }
+      cell.addEventListener("click", () => mineHandleOpen(r, c));
+      cell.addEventListener("contextmenu", (e) => { e.preventDefault(); mineHandleFlag(r, c); });
+      board.appendChild(cell);
+    }
+  }
+  mineUpdateFlagCount();
+}
+
+function mineFloodOpen(r, c){
+  const stack = [[r, c]];
+  while (stack.length){
+    const [cr, cc] = stack.pop();
+    const key = mineIndex(cr, cc);
+    if (mineState.opened.has(key) || mineState.flagged.has(key)) continue;
+    mineState.opened.add(key);
+    const cell = mineState.grid[cr][cc];
+    if (cell.n === 0 && !cell.mine){
+      mineNeighbors(cr, cc).forEach(([nr, nc]) => {
+        if (!mineState.opened.has(mineIndex(nr, nc))) stack.push([nr, nc]);
+      });
+    }
+  }
+}
+
+function mineCheckWin(){
+  const total = MINE_COLS * MINE_ROWS;
+  return mineState.opened.size === total - MINE_COUNT;
+}
+
+function mineHandleOpen(r, c){
+  if (!mineState || mineState.over) return;
+  const key = mineIndex(r, c);
+  if (mineState.flagged.has(key)) return;
+
+  if (!mineState.grid){
+    mineState.grid = mineBuildGrid(r, c);
+    mineState.timer = 0;
+    const timerEl = document.getElementById("mine-timer");
+    mineState.timerId = setInterval(() => {
+      mineState.timer++;
+      if (timerEl) timerEl.textContent = "⏱ " + mineState.timer;
+    }, 1000);
+  }
+
+  const cellData = mineState.grid[r][c];
+  if (cellData.mine){
+    mineState.opened.add(key);
+    mineState.over = true;
+    mineStopTimer();
+    mineSetFace("😵");
+    for (let rr = 0; rr < MINE_ROWS; rr++){
+      for (let cc = 0; cc < MINE_COLS; cc++){
+        if (mineState.grid[rr][cc].mine) mineState.opened.add(mineIndex(rr, cc));
+      }
+    }
+    mineRender();
+    return;
+  }
+
+  mineFloodOpen(r, c);
+  if (mineCheckWin()){
+    mineState.over = true;
+    mineState.won = true;
+    mineStopTimer();
+    mineSetFace("😎");
+  }
+  mineRender();
+}
+
+function mineHandleFlag(r, c){
+  if (!mineState || mineState.over) return;
+  const key = mineIndex(r, c);
+  if (mineState.opened.has(key)) return;
+  if (mineState.flagged.has(key)) mineState.flagged.delete(key);
+  else mineState.flagged.add(key);
+  mineRender();
+}
+
+function mineReset(){
+  mineStopTimer();
+  mineState = { grid: null, opened: new Set(), flagged: new Set(), over: false, won: false, timer: 0, timerId: null };
+  mineSetFace("🙂");
+  const timerEl = document.getElementById("mine-timer");
+  if (timerEl) timerEl.textContent = "⏱ 0";
+  mineRender();
+}
+
+function setupMinesweeper(){
+  const face = document.getElementById("mine-face");
+  if (face) face.onclick = mineReset;
+  mineReset();
+}
+
 (function init(){
   const now = new Date();
   viewYear = now.getFullYear();
@@ -652,4 +831,5 @@ function runBootSequence(){
   loadSchedule();
   loadTodo();
   loadGames();
+  setupMinesweeper();
 })();

@@ -148,7 +148,7 @@ body.wait-cursor *{
 .window.hidden{ display:none; }
 
 .titlebar{
-  background:linear-gradient(180deg,#0a246a,#1a4faa 55%,#a6caf0);
+  background:#0a246a;
   color:#fff; padding:6px 8px; display:flex; align-items:center; justify-content:space-between;
   font-weight:bold; font-size:13px; gap:8px;
 }
