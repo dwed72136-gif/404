@@ -294,7 +294,9 @@ let zTop = 10;
 
 function markDragged(){
   justDragged = true;
-  setTimeout(() => { justDragged = false; }, 0);
+  // 모바일은 touchend 이후 합성 click 이벤트가 한 박자 늦게 오기 때문에
+  // 0ms로 풀어버리면 click이 도착하기 전에 플래그가 꺼져서 링크가 눌려버림
+  setTimeout(() => { justDragged = false; }, 400);
 }
 
 // 아이콘: 자유롭게 옮기기만 함 (위치는 이 브라우저에 저장됨)
