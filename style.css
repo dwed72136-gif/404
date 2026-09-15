@@ -8,9 +8,14 @@
   src:url("fonts/MonaS12TextKR-Bold.ttf") format("truetype");
   font-weight:700; font-style:normal; font-display:swap;
 }
+@font-face{
+  font-family:"MonaEmoji";
+  src:url("fonts/Mona12ColorEmoji.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
+}
 :root{
   color-scheme: light;
-  --font-mona:"MonaKR","Segoe UI",Tahoma,Geneva,sans-serif;
+  --font-mona:"MonaKR","MonaEmoji","Segoe UI",Tahoma,Geneva,sans-serif;
 }
 *{ box-sizing:border-box; }
 html,body{
@@ -327,8 +332,8 @@ body.wait-cursor *{
 .inet-counter{ font-family:var(--font-mona); font-size:16px; background:#000; color:#0f0; display:inline-block; padding:3px 10px; }
 
 /* 인터넷 창: 가끔 뜨는 "오프라인 공룡" 이스터에그 */
-.inet-dino-page{ text-align:center; padding:40px 24px 32px; background:#f1f2f0; }
-.dino-scene{ width:min(260px, 100%); height:auto; margin-bottom:18px; }
+.inet-dino-page{ text-align:center; padding:10px 24px 32px; background:#fff; }
+.dino-scene{ width:min(260px, 100%); height:auto; margin-bottom:2px; image-rendering:pixelated; }
 .inet-dino-title{ font-weight:bold; font-size:20px; color:#2b2b2b; margin:0 0 10px; }
 .inet-dino-try{ display:inline-block; text-align:left; color:#444; font-size:13px; line-height:1.5; }
 .inet-dino-try p{ margin:0 0 4px; font-weight:bold; }
