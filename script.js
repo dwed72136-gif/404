@@ -11,6 +11,8 @@ const CONFIG = {
   SCHEDULE_SHEET: "일정",       // 일정표 탭 이름
   GAMES_SHEET: "게임아카이브",   // 게임 아카이브 탭 이름
   TODO_SHEET: "메모",           // 할일 메모 탭 이름
+  WIKI_SHEET: "위키",           // 위키(소개/세계관) 탭 이름
+  PICTURES_SHEET: "그림",       // 그림 목록 탭 이름 (파일명만 이 시트에 추가하면 됩니다)
 
   // 우측 상단 "System Error" 팝업 문구 — 자유롭게 수정하세요
   ERROR_TITLE: "System Error",
@@ -22,6 +24,18 @@ const CONFIG = {
    [스케줄 탭]  A:date(YYYY-MM-DD)  B:title  C:tag(yellow/blue/red/green/gray 또는 #ffaa00 같은 컬러 코드)
    [게임 탭]    A:title  B:rating(1~5)  C:note  D:tag(옵션)
    [메모 탭]    A: 첫 행은 아무 헤더(예: item), 2행부터 한 줄에 할일 하나씩
+
+   [위키 탭]    A:섹션 제목(예: 소개)  B:내용(줄바꿈은 셀 안에서 Alt+Enter로 넣으면 그대로 유지됨)
+                → 한 행이 위키의 섹션 하나가 됩니다. 필요한 만큼 행을 추가하면 목차와
+                  본문이 자동으로 늘어납니다.
+                → A열에 "제목"이라고 쓰면 B열이 맨 위 큰 제목(h1)이 되고,
+                  A열에 "요약"이라고 쓰면 B열이 제목 아래 소개 문구가 됩니다.
+                  (이 두 행은 목차/번호에는 포함되지 않음)
+
+   [그림 탭]    A:파일명 또는 이미지 링크  B:설명(옵션)
+                → pictures 폴더에 올린 이미지면 파일명만 (예: fanart1.png)
+                → 다른 곳에 올려둔 이미지면 링크를 통째로 (예: https://...로 시작하는 주소)
+                  둘 중 아무거나 적어도 자동으로 구분해서 보여줍니다.
 */
 
 function csvUrl(sheetName){
@@ -93,7 +107,8 @@ function showWindow(id){
 document.getElementById("open-schedule").onclick = () => { if (justDragged) return; showWindow("win-schedule"); };
 document.getElementById("open-archive").onclick = () => { if (justDragged) return; showWindow("win-archive"); };
 document.getElementById("open-mine").onclick = () => { if (justDragged) return; showWindow("win-mine"); };
-document.getElementById("open-inet").onclick = () => { if (justDragged) return; renderInetHome(); showWindow("win-inet"); };
+document.getElementById("open-inet").onclick = () => { if (justDragged) return; showWikiPage(); showWindow("win-inet"); };
+document.getElementById("open-pictures").onclick = () => { if (justDragged) return; loadPictures(); showWindow("win-pictures"); };
 document.getElementById("goto-archive").onclick = () => showWindow("win-archive");
 document.getElementById("goto-schedule").onclick = () => showWindow("win-schedule");
 document.querySelectorAll("[data-close]").forEach(btn=>{
@@ -297,6 +312,251 @@ async function loadGames(){
   } finally {
     endLoad();
   }
+}
+
+/* ---------------- 그림 창 (구글 시트 "그림" 탭을 읽어와 표시) ----------------
+   그림을 추가하려면:
+   1) 이미지 파일을 git의 pictures 폴더에 올리고 (push)
+   2) 구글 시트 "그림" 탭에 그 파일명을 한 줄 추가하면
+   그림 창에 자동으로 나타납니다. (다른 탭들과 동일한 방식) */
+async function loadPictures(){
+  const grid = document.getElementById("picture-grid");
+  const count = document.getElementById("picture-count");
+  if (!grid) return;
+  beginLoad();
+  try {
+    const rows = await fetchSheet(CONFIG.PICTURES_SHEET);
+    const files = rows
+      .map(r => ({ name: (r[0]||"").trim(), caption: (r[1]||"").trim() }))
+      .filter(f => f.name);
+
+    grid.innerHTML = "";
+    if (files.length === 0){
+      grid.innerHTML = `<div class="picture-empty">아직 등록된 그림이 없습니다.<br>pictures 폴더에 이미지를 올리고, 구글 시트 "${CONFIG.PICTURES_SHEET}" 탭에 파일명을 추가해주세요.</div>`;
+      if (count) count.textContent = "그림 0장";
+      return;
+    }
+    files.forEach(f=>{
+      // A열에 http(s):// 로 시작하는 링크를 적으면 그 링크를 그대로 쓰고,
+      // 그냥 파일명만 적으면 pictures 폴더 안의 그 파일을 씁니다.
+      const src = /^https?:\/\//i.test(f.name) ? f.name : `pictures/${encodeURI(f.name)}`;
+      const card = document.createElement("div");
+      card.className = "pcard";
+      card.innerHTML = `
+        <div class="pthumb"><img src="${src}" alt="${escapeHtml(f.caption||f.name)}" loading="lazy"></div>
+        <div class="pname">${escapeHtml(f.caption||f.name)}</div>`;
+      card.addEventListener("click", () => openPaintViewer(src, f.caption || f.name));
+      grid.appendChild(card);
+    });
+    if (count) count.textContent = `그림 ${files.length}장`;
+  } catch(err){
+    grid.innerHTML = `<div class="picture-empty">그림 목록을 불러오지 못했습니다.<br>구글 시트에 "${CONFIG.PICTURES_SHEET}" 탭이 있는지 확인해주세요.</div>`;
+    if (count) count.textContent = "그림 -장";
+    console.error(err);
+  } finally {
+    endLoad();
+  }
+}
+const pictureRefreshBtn = document.getElementById("picture-refresh");
+if (pictureRefreshBtn) pictureRefreshBtn.onclick = loadPictures;
+
+/* ---------------- 그림판(Paint) 스타일 이미지 뷰어 ---------------- */
+const PAINT_PALETTE_COLORS = [
+  "#000000","#808080","#800000","#808000","#008000","#008080","#000080","#800080",
+  "#808040","#004040","#0080ff","#004080","#4000ff","#804000","#ff0000","#ffff00",
+  "#00ff00","#00ffff","#0000ff","#ff00ff","#ffff80","#00ff80","#80ffff","#8080ff",
+  "#ff0080","#ffffff","#c0c0c0","#f0f0f0"
+];
+function setupPaintPalette(){
+  const el = document.getElementById("paint-palette");
+  if (!el || el.childElementCount) return; // 이미 만들어져 있으면 다시 안 만듦
+  PAINT_PALETTE_COLORS.forEach(color => {
+    const sw = document.createElement("div");
+    sw.className = "paint-swatch";
+    sw.style.background = color;
+    el.appendChild(sw);
+  });
+}
+
+function openPaintViewer(src, name){
+  const img = document.getElementById("paint-image");
+  const title = document.getElementById("paint-title");
+  if (img) { img.src = src; img.alt = name || ""; }
+  if (title) title.textContent = (name ? name + " - " : "") + "그림판";
+  setupPaintPalette();
+  showWindow("win-paint");
+}
+
+/* 페이지를 처음 열었을 때: 스케줄러 오른쪽에 그림판 창을 띄우고,
+   시트("그림" 탭)의 가장 마지막(최신) 그림을 자동으로 보여줍니다. */
+function pictureSrcFor(name){
+  return /^https?:\/\//i.test(name) ? name : `pictures/${encodeURI(name)}`;
+}
+
+async function showLatestPictureOnLoad(){
+  try {
+    const rows = await fetchSheet(CONFIG.PICTURES_SHEET);
+    const items = rows
+      .map(r => ({ name: (r[0]||"").trim(), caption: (r[1]||"").trim() }))
+      .filter(f => f.name);
+    if (items.length === 0) return; // 등록된 그림이 없으면 자동으로 띄우지 않음
+
+    const latest = items[items.length - 1]; // 시트 맨 아래 줄 = 가장 최신
+    const src = pictureSrcFor(latest.name);
+    const img = document.getElementById("paint-image");
+    const title = document.getElementById("paint-title");
+    if (img){ img.src = src; img.alt = latest.caption || latest.name; }
+    if (title) title.textContent = (latest.caption || latest.name) + " - 그림판";
+    setupPaintPalette();
+
+    const win = document.getElementById("win-paint");
+    if (!win) return;
+
+    let hasSavedPos = false;
+    try { hasSavedPos = !!localStorage.getItem("404-win-pos:win-paint"); } catch(e){}
+
+    if (!hasSavedPos){
+      // 사용자가 예전에 직접 옮겨둔 적이 없으면, 스케줄러 창 오른쪽에 기본 배치
+      const desktop = document.querySelector(".desktop");
+      const sched = document.getElementById("win-schedule");
+      if (desktop && sched){
+        const dRect = desktop.getBoundingClientRect();
+        const sRect = sched.getBoundingClientRect();
+        const paintWidth = 360;
+        let left = sRect.right - dRect.left + 16;
+        if (left + paintWidth + 16 > dRect.width){
+          left = Math.max(16, dRect.width - paintWidth - 16);
+        }
+        win.classList.add("dragged"); // 가운데 정렬 대신 직접 지정한 좌표를 쓰기 위함
+        win.style.left = left + "px";
+        win.style.top = Math.max(16, sRect.top - dRect.top) + "px";
+        win.style.width = paintWidth + "px";
+        win.style.height = "380px";
+      }
+    }
+
+    win.classList.remove("hidden");
+    win.style.zIndex = ++zTop;
+    refreshAllTaskbarItems();
+  } catch(err){
+    console.error("최신 그림 자동 표시 실패:", err);
+  }
+}
+
+/* ---------------- 인터넷 창: 위키 페이지 (구글 시트 "위키" 탭을 읽어와 표시) ----------------
+   시트 A열에 "제목" 이라고 쓰면 B열 내용이 위키 맨 위 큰 제목(h1)이 되고,
+   A열에 "요약" 이라고 쓰면 B열 내용이 제목 아래 소개 문구가 됩니다.
+   ("제목"/"요약" 두 행은 목차·번호에는 포함되지 않습니다)
+   그 외의 행은 전부 순서대로 번호 붙은 섹션이 됩니다. */
+const WIKI_DEFAULT_TITLE = "기덕이 (404 DUCK)";
+
+function buildWikiShellHTML(){
+  return `
+    <div class="wiki-page">
+      <div class="wiki-header">
+        <div class="wiki-logo">덩기덕 위키</div>
+      </div>
+      <div class="wiki-body">
+        <aside class="wiki-toc" id="wiki-toc">
+          <div class="wiki-toc-title">목차</div>
+        </aside>
+        <article class="wiki-article" id="wiki-article">
+          <h1>${escapeHtml(WIKI_DEFAULT_TITLE)}</h1>
+          <p class="wiki-placeholder">불러오는 중...</p>
+        </article>
+      </div>
+    </div>`;
+}
+
+function wikiSlugify(title, index){
+  return "wiki-sec-" + index + "-" + String(title).replace(/[^a-zA-Z0-9가-힣]+/g, "");
+}
+
+async function loadWikiContent(){
+  const toc = document.getElementById("wiki-toc");
+  const article = document.getElementById("wiki-article");
+  if (!toc || !article) return; // 위키 페이지가 이미 다른 화면으로 넘어간 경우
+  beginLoad();
+  try {
+    const rows = await fetchSheet(CONFIG.WIKI_SHEET);
+    const all = rows
+      .map(r => ({ title: (r[0]||"").trim(), body: (r[1]||"").trim() }))
+      .filter(s => s.title);
+
+    // 로딩 중 다른 페이지로 이동했으면 결과를 반영하지 않음
+    if (!document.getElementById("wiki-article")) return;
+
+    const titleRow = all.find(s => s.title === "제목");
+    const summaryRow = all.find(s => s.title === "요약");
+    const sections = all.filter(s => s.title !== "제목" && s.title !== "요약");
+
+    const pageTitle = (titleRow && titleRow.body) ? titleRow.body : WIKI_DEFAULT_TITLE;
+    const summaryHtml = (summaryRow && summaryRow.body)
+      ? `<p class="wiki-summary">${escapeHtml(summaryRow.body)}</p>` : "";
+
+    if (sections.length === 0){
+      toc.innerHTML = `<div class="wiki-toc-title">목차</div>`;
+      article.innerHTML = `<h1>${escapeHtml(pageTitle)}</h1>${summaryHtml}<p class="wiki-placeholder">아직 위키 내용이 없습니다. 구글 시트 "${CONFIG.WIKI_SHEET}" 탭의 A열(제목)/B열(내용)에 내용을 채워주세요.</p>`;
+      return;
+    }
+
+    const tocLinks = sections.map((s, i) => {
+      const id = wikiSlugify(s.title, i);
+      return `<a href="#${id}">${i + 1}. ${escapeHtml(s.title)}</a>`;
+    }).join("");
+    toc.innerHTML = `<div class="wiki-toc-title">목차</div>${tocLinks}`;
+
+    const articleBody = sections.map((s, i) => {
+      const id = wikiSlugify(s.title, i);
+      const body = s.body ? escapeHtml(s.body) : `<span class="wiki-placeholder">[내용 없음]</span>`;
+      return `<h2 id="${id}">${i + 1}. ${escapeHtml(s.title)}</h2><p>${body}</p>`;
+    }).join("");
+    article.innerHTML = `<h1>${escapeHtml(pageTitle)}</h1>${summaryHtml}${articleBody}`;
+  } catch(err){
+    if (!document.getElementById("wiki-article")) return;
+    toc.innerHTML = `<div class="wiki-toc-title">목차</div>`;
+    article.innerHTML = `<h1>${escapeHtml(WIKI_DEFAULT_TITLE)}</h1><p class="wiki-placeholder">위키 내용을 불러오지 못했습니다. 구글 시트에 "${CONFIG.WIKI_SHEET}" 탭이 있는지 확인해주세요.</p>`;
+    console.error(err);
+  } finally {
+    endLoad();
+  }
+}
+
+function cacheInetHomeIfNeeded(){
+  if (inetHomeHTML !== null) return;
+  const page = document.querySelector("#win-inet .inet-page");
+  if (page) inetHomeHTML = page.innerHTML; // 최초 1회만 원본(바로가기 목록 페이지) 캐시
+}
+
+function showWikiPage(){
+  cacheInetHomeIfNeeded(); // 위키가 기본 페이지이므로, 바로가기 목록 원본을 먼저 저장해둠
+  const container = document.querySelector("#win-inet .inet-content");
+  const addr = document.querySelector("#win-inet .inet-addr");
+  if (!container) return;
+  container.innerHTML = buildWikiShellHTML();
+  if (addr) addr.textContent = "http://www.404duck.co.kr/wiki/기덕이";
+  loadWikiContent();
+}
+
+function showInetHomeCached(){
+  const container = document.querySelector("#win-inet .inet-content");
+  const addr = document.querySelector("#win-inet .inet-addr");
+  if (!container) return;
+  if (inetHomeHTML === null){ renderInetHome(); return; }
+  container.innerHTML = `<div class="inet-page">${inetHomeHTML}</div>`;
+  if (addr) addr.textContent = "http://www.404duck.co.kr/";
+}
+
+function setupInetNavigation(){
+  const container = document.querySelector("#win-inet .inet-content");
+  if (container){
+    container.addEventListener("click", (e)=>{
+      const wikiLink = e.target.closest("#goto-wiki");
+      if (wikiLink){ e.preventDefault(); showWikiPage(); }
+    });
+  }
+  const backBtn = document.getElementById("inet-back");
+  if (backBtn) backBtn.onclick = showInetHomeCached;
 }
 
 function escapeHtml(s){
@@ -556,7 +816,7 @@ function makeWindowInteractive(win){
 }
 
 function setupDragAndResize(){
-  ["open-schedule","open-archive","open-mine","open-inet","icon-chzzk","icon-cafe","icon-x","icon-youtube"].forEach(id=>{
+  ["open-schedule","open-archive","open-mine","open-inet","open-pictures","icon-chzzk","icon-cafe","icon-x","icon-youtube","icon-youtube-archive"].forEach(id=>{
     makeIconDraggable(document.getElementById(id));
   });
   // 링크 아이콘은 드래그 직후엔 새 탭 이동을 막음
@@ -567,6 +827,8 @@ function setupDragAndResize(){
   makeWindowInteractive(document.getElementById("win-archive"));
   makeWindowInteractive(document.getElementById("win-mine"));
   makeWindowInteractive(document.getElementById("win-inet"));
+  makeWindowInteractive(document.getElementById("win-pictures"));
+  makeWindowInteractive(document.getElementById("win-paint"));
   makeToastDraggable(document.getElementById("err-toast"));
 }
 
@@ -999,4 +1261,7 @@ function setupDesktopContextMenu(){
   setupMinesweeper();
   setupCrackEasterEgg();
   setupDesktopContextMenu();
+  setupInetNavigation();
+  loadPictures();
+  showLatestPictureOnLoad();
 })();

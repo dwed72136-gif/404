@@ -77,11 +77,20 @@
       </svg>
       <span>인터넷</span>
     </div>
+    <div class="dicon" id="open-pictures">
+      <svg width="36" height="30" viewBox="0 0 40 34" shape-rendering="crispEdges">
+        <path d="M2 6 h12 l3 4 h21 v20 a2 2 0 0 1 -2 2 h-32 a2 2 0 0 1 -2 -2 z" fill="#ffd24a" stroke="#7a5a00" stroke-width="1"/>
+        <rect x="6" y="14" width="24" height="15" fill="#fff" stroke="#7a5a00" stroke-width="1"/>
+        <circle cx="11" cy="19" r="2" fill="#ffb400"/>
+        <path d="M6 29 L14 21 L19 25 L25 17 L30 29 Z" fill="#4a90d9"/>
+      </svg>
+      <span>그림</span>
+    </div>
 
     <!-- link icons -->
     <a class="dicon" draggable="false" id="icon-chzzk" href="https://chzzk.naver.com/41e6c86cf804123cc8574b4cd118c019" target="_blank" rel="noopener">
       <svg width="34" height="34" viewBox="0 0 36 36"><rect x="1" y="1" width="34" height="34" rx="6" fill="#03e185" stroke="#000"/><path d="M13 11 L26 18 L13 25 Z" fill="#0a0a0a"/></svg>
-      <span>방송국</span>
+      <span>치지직</span>
     </a>
     <a class="dicon" draggable="false" id="icon-cafe" href="https://cafe.naver.com/404duck/420" target="_blank" rel="noopener">
       <svg width="34" height="34" viewBox="0 0 36 36">
@@ -98,6 +107,10 @@
     <a class="dicon" draggable="false" id="icon-youtube" href="https://www.youtube.com/@%EB%8D%A9%EA%B8%B0%EB%8D%9550" target="_blank" rel="noopener">
       <svg width="34" height="34" viewBox="0 0 36 36"><rect x="1" y="1" width="34" height="34" rx="6" fill="#ff0000" stroke="#000"/><path d="M14 11 L26 18 L14 25 Z" fill="#fff"/></svg>
       <span>YouTube</span>
+    </a>
+    <a class="dicon" draggable="false" id="icon-youtube-archive" href="https://www.youtube.com/@404%EB%8D%A9%EA%B8%B0%EB%8D%95" target="_blank" rel="noopener">
+      <svg width="34" height="34" viewBox="0 0 36 36"><rect x="1" y="1" width="34" height="34" rx="6" fill="#ff7a1a" stroke="#000"/><path d="M14 11 L26 18 L14 25 Z" fill="#1a1a1a"/></svg>
+      <span>유튜브 아카이브</span>
     </a>
 
     <!-- error toast -->
@@ -209,7 +222,7 @@
         <span>파일(F)</span><span>편집(E)</span><span>보기(V)</span><span>즐겨찾기(A)</span><span>도움말(H)</span>
       </div>
       <div class="toolbar bevel-in">
-        <div class="wbtn">◀ 뒤로</div>
+        <div class="wbtn" id="inet-back">◀ 뒤로</div>
         <div class="wbtn">앞으로 ▶</div>
         <div class="statuspill inet-addr">http://www.404duck.co.kr/</div>
         <div class="wbtn">이동</div>
@@ -220,15 +233,70 @@
           <h1>404 DUCK's HOMEPAGE</h1>
           <p class="inet-sub">방문해주셔서 감사합니다! 아래 링크를 눌러 구경하세요.</p>
           <ul class="inet-links">
-            <li><a href="https://chzzk.naver.com/41e6c86cf804123cc8574b4cd118c019" target="_blank" rel="noopener">▶ 방송국 바로가기</a></li>
+            <li><a href="https://chzzk.naver.com/41e6c86cf804123cc8574b4cd118c019" target="_blank" rel="noopener">▶ 치지직 바로가기</a></li>
             <li><a href="https://cafe.naver.com/404duck/420" target="_blank" rel="noopener">▶ 팬카페 바로가기</a></li>
             <li><a href="https://x.com/kikiduck77/" target="_blank" rel="noopener">▶ X 바로가기</a></li>
             <li><a href="https://www.youtube.com/@%EB%8D%A9%EA%B8%B0%EB%8D%9550" target="_blank" rel="noopener">▶ YouTube 바로가기</a></li>
+            <li><a href="#" id="goto-wiki">▶ 위키: 기덕이 소개 &amp; 세계관</a></li>
           </ul>
           <div class="inet-counter">오늘의 방문자 수: 000404 명</div>
         </div>
       </div>
       <div class="resize-handle" data-resize="win-inet"></div>
+    </div>
+
+    <!-- PICTURES WINDOW (기본 PC 그림 폴더 느낌의 UI) -->
+    <div class="window hidden" id="win-pictures">
+      <div class="titlebar">
+        <span>그림 — 팬아트 & 이미지 모음</span>
+        <div class="wctl win-xp">
+          <div class="wbtn min"></div><div class="wbtn max"></div>
+          <div class="wbtn close" data-close="win-pictures">×</div>
+        </div>
+      </div>
+      <div class="menubar">
+        <span>파일(F)</span><span>편집(E)</span><span>보기(V)</span><span>도움말(H)</span>
+      </div>
+      <div class="toolbar bevel-in">
+        <div class="pixel monthlabel" id="picture-count">그림 -장</div>
+        <div class="spacer"></div>
+        <div class="wbtn" id="picture-refresh">새로고침</div>
+      </div>
+      <div class="content picture-content bevel-in">
+        <div class="picture-grid" id="picture-grid">불러오는 중...</div>
+      </div>
+      <div class="resize-handle" data-resize="win-pictures"></div>
+    </div>
+
+    <!-- PAINT VIEWER (그림판 느낌으로 이미지 크게 보기) -->
+    <div class="window hidden" id="win-paint">
+      <div class="titlebar">
+        <span id="paint-title">제목 없음 - 그림판</span>
+        <div class="wctl win-xp">
+          <div class="wbtn min"></div><div class="wbtn max"></div>
+          <div class="wbtn close" data-close="win-paint">×</div>
+        </div>
+      </div>
+      <div class="menubar">
+        <span>파일(F)</span><span>편집(E)</span><span>보기(V)</span><span>이미지(I)</span><span>도움말(H)</span>
+      </div>
+      <div class="paint-toolbar bevel-in">
+        <div class="paint-tools bevel-in">
+          <div class="paint-tool" title="연필">✏️</div>
+          <div class="paint-tool" title="지우개">🧹</div>
+          <div class="paint-tool" title="채우기">🪣</div>
+          <div class="paint-tool" title="붓">🖌️</div>
+          <div class="paint-tool" title="스포이트">💧</div>
+          <div class="paint-tool" title="돋보기">🔍</div>
+        </div>
+        <div class="paint-palette bevel-in" id="paint-palette"></div>
+      </div>
+      <div class="content paint-content bevel-in">
+        <div class="paint-canvas" id="paint-canvas">
+          <img id="paint-image" src="" alt="">
+        </div>
+      </div>
+      <div class="resize-handle" data-resize="win-paint"></div>
     </div>
 
     <!-- global taskbar, fixed to the bottom of the screen -->
@@ -238,6 +306,8 @@
       <div class="bevel-in taskitem hidden" data-win="win-archive">game_archive.exe</div>
       <div class="bevel-in taskitem hidden" data-win="win-mine">minesweeper.exe</div>
       <div class="bevel-in taskitem hidden" data-win="win-inet">iexplore.exe</div>
+      <div class="bevel-in taskitem hidden" data-win="win-pictures">pictures.exe</div>
+      <div class="bevel-in taskitem hidden" data-win="win-paint">paint.exe</div>
       <div class="spacer"></div>
       <div class="bevel-in clock" id="clock">--:--</div>
     </div>
